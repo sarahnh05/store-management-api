@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/sarahnh05/store-management-api/issues"
   },
@@ -23,6 +23,7 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.13"
+    "nodemon": "^3.1.13",
+    "prisma": "^7.4.1"
   }
 }
