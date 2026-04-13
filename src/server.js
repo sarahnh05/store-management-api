@@ -3,15 +3,20 @@ import { config } from 'dotenv';
 import { connectDB, disconnectDB } from './config/db.js';
 
 //import routes
-import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 config();
 connectDB();
 
 const app = express();
 
+// body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // API routes
-app.use('/users', userRoutes);
+app.use('/products', productRoutes);
+app.use('/auth', authRoutes);
 
 const PORT = 3000;
 const server = app.listen(PORT, () => {
