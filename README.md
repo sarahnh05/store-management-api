@@ -23,29 +23,28 @@ A RESTful API for managing products and users with authentication, role-based ac
 ## ERD Diagram
 
 ```mermaid
+erDiagram
 USER ||--o{ PRODUCT : creates
 USER {
-string id
-string email
-string password
-string name
-enum role
-datetime
-createdAt
-datetime
-updatedAt
+  string id
+  string email
+  string password
+  string name
+  enum role
+  datetime createdAt
+  datetime updatedAt
 }
 PRODUCT {
-string id
-string name
-float price
-int stock
-enum category
-string description
-boolean isDeleted
-string userId
-datetime createdAt
-datetime updatedAt
+  string id
+  string name
+  float price
+  int stock
+  enum category
+  string description
+  boolean isDeleted
+  string userId
+  datetime createdAt
+  datetime updatedAt
 }
 
 ## Installation
