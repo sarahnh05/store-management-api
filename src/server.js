@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/products', productRoutes);
 app.use('/auth', authRoutes);
 
-const PORT = 3000;
+const PORT = 5000;
 const server = app.listen(PORT, () => {
   console.log(`Server running on PORT ${PORT}`);
 });

@@ -3,6 +3,65 @@ import { prisma } from '../config/db.js';
 
 const router = express.Router();
 
+router.post('/', async (req, res) => {
+  try {
+    let { name, price, stock, description, category, userId } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({
+        message: 'Name is required',
+      });
+    }
+
+    price = Number(price);
+    if (!price || price <= 0) {
+      return res.status(400).json({
+        message: 'Price must be greater than 0',
+      });
+    }
+
+    stock = Number(stock);
+    if (isNaN(stock) || stock < 0) {
+      return res.status(400).json({
+        message: 'Stock must be a number >= 0',
+      });
+    }
+
+    const allowedCategory = ['FOOD', 'DRINK', 'SNACK', 'OTHER'];
+    if (!category) {
+      return res.status(400).json({
+        message: 'Category is required',
+      });
+    }
+
+    category = category.toUpperCase();
+
+    if (!allowedCategory.includes(category)) {
+      return res.status(400).json({ message: 'Invalid category' });
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name: name.trim(),
+        category,
+        price,
+        stock,
+        description,
+        userId,
+      },
+    });
+
+    res.status(201).json({
+      message: 'Product created',
+      data: product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -45,51 +104,6 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({
-      message: 'Internal server error',
-    });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    let { name, price, stock, description, userId } = req.body;
-
-    if (!name?.trim()) {
-      return res.status(400).json({
-        message: 'Name is required',
-      });
-    }
-
-    price = Number(price);
-    if (!price || price <= 0) {
-      return res.status(400).json({
-        message: 'Price must be greater than 0',
-      });
-    }
-
-    stock = Number(stock);
-    if (isNaN(stock) || stock < 0) {
-      return res.status(400).json({
-        message: 'Stock must be a number >= 0',
-      });
-    }
-
-    const product = await prisma.product.create({
-      data: {
-        name: name.trim(),
-        price,
-        stock,
-        description,
-        userId,
-      },
-    });
-
-    res.status(201).json({
-      message: 'Product created',
-      data: product,
-    });
-  } catch (error) {
     res.status(500).json({
       message: 'Internal server error',
     });
