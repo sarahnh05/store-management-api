@@ -34,6 +34,7 @@ USER {
   datetime createdAt
   datetime updatedAt
 }
+
 PRODUCT {
   string id
   string name
