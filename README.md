@@ -1,6 +1,6 @@
 # store-management-api
 
-Simple REST API for managing products with authentication and validation functionality built using Express, Prisma, and PostgreSQL.
+A RESTful API for managing products and users with authentication, role-based access control, validation, pagination, and soft delete, built using Express, Prisma, and PostgreSQL.
 
 ## Features
 - User authentication (register, login, & logout)
@@ -19,6 +19,34 @@ Simple REST API for managing products with authentication and validation functio
 - Prisma ORM
 - PostgreSQL
 - Zod (validation)
+
+## ERD Diagram
+
+```mermaid
+USER ||--o{ PRODUCT : creates
+USER {
+string id
+string email
+string password
+string name
+enum role
+datetime
+createdAt
+datetime
+updatedAt
+}
+PRODUCT {
+string id
+string name
+float price
+int stock
+enum category
+string description
+boolean isDeleted
+string userId
+datetime createdAt
+datetime updatedAt
+}
 
 ## Installation
 1. Clone repository
