@@ -1,54 +1,16 @@
 import express from 'express';
 import { prisma } from '../config/db.js';
+import { createProductSchema } from '../validations/product.validation.js';
+import { updateProductSchema } from '../validations/product.validation.js';
 
 const router = express.Router();
 
 router.post('/', async (req, res) => {
   try {
-    let { name, price, stock, description, category, userId } = req.body;
-
-    if (!name?.trim()) {
-      return res.status(400).json({
-        message: 'Name is required',
-      });
-    }
-
-    price = Number(price);
-    if (!price || price <= 0) {
-      return res.status(400).json({
-        message: 'Price must be greater than 0',
-      });
-    }
-
-    stock = Number(stock);
-    if (isNaN(stock) || stock < 0) {
-      return res.status(400).json({
-        message: 'Stock must be a number >= 0',
-      });
-    }
-
-    const allowedCategory = ['FOOD', 'DRINK', 'SNACK', 'OTHER'];
-    if (!category) {
-      return res.status(400).json({
-        message: 'Category is required',
-      });
-    }
-
-    category = category.toUpperCase();
-
-    if (!allowedCategory.includes(category)) {
-      return res.status(400).json({ message: 'Invalid category' });
-    }
+    const validatedData = createProductSchema.parse(req.body);
 
     const product = await prisma.product.create({
-      data: {
-        name: name.trim(),
-        category,
-        price,
-        stock,
-        description,
-        userId,
-      },
+      data: validatedData,
     });
 
     res.status(201).json({
@@ -56,6 +18,19 @@ router.post('/', async (req, res) => {
       data: product,
     });
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        message: 'Product name already exists',
+      });
+    }
+
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: error.errors,
+      });
+    }
+
     res.status(500).json({
       message: 'Internal server error',
     });
@@ -64,15 +39,29 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    let { page = 1, limit = 10 } = req.query;
 
     const products = await prisma.product.findMany({
+      where: {
+        isDeleted: false,
+      },
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const total = await prisma.product.count({
+      where: {
+        isDeleted: false,
+      },
     });
 
     res.json({
       message: 'Success',
+      total,
+      totalPages: Math.ceil(total / limit),
       page: Number(page),
       limit: Number(limit),
       data: products,
@@ -89,7 +78,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
 
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { id, isDeleted: false },
     });
 
     if (!product) {
@@ -113,34 +102,22 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, description, stock } = req.body;
+    const validatedData = updateProductSchema.parse(req.body);
 
-    const dataToUpdate = {};
-
-    if (name !== undefined) dataToUpdate.name = name;
-    if (price !== undefined) dataToUpdate.price = Number(price);
-    if (description !== undefined) dataToUpdate.description = description;
-
-    if (Object.keys(dataToUpdate).length === 0) {
+    if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
-        message: 'At least one field must be updated',
+        message: 'At least one field must be provided',
       });
     }
 
-    if (dataToUpdate.price !== undefined && isNaN(dataToUpdate.price)) {
-      return res.status(400).json({
-        message: 'Price must be a number',
-      });
-    }
-
-    const product = await prisma.product.update({
+    const updatedProduct = await prisma.product.update({
       where: { id },
-      data: dataToUpdate,
+      data: validatedData,
     });
 
     res.json({
       message: 'Product updated',
-      data: product,
+      data: updatedProduct,
     });
   } catch (error) {
     if (error.code === 'P2025') {
@@ -149,7 +126,19 @@ router.put('/:id', async (req, res) => {
       });
     }
 
-    console.error(error);
+    if (error.code === 'P2002') {
+      return res.status(400).json({
+        message: 'Product name already exists',
+      });
+    }
+
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: error.errors,
+      });
+    }
+
     res.status(500).json({
       message: 'Internal server error',
     });
@@ -160,8 +149,11 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedProduct = await prisma.product.delete({
+    const deletedProduct = await prisma.product.update({
       where: { id },
+      data: {
+        isDeleted: true,
+      },
     });
 
     res.json({
