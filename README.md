@@ -47,6 +47,7 @@ PRODUCT {
   datetime createdAt
   datetime updatedAt
 }
+```
 
 ## Installation
 1. Clone repository
