@@ -2,15 +2,15 @@ import express from 'express';
 import { prisma } from '../config/db.js';
 import { createProductSchema } from '../validations/product.validation.js';
 import { updateProductSchema } from '../validations/product.validation.js';
+import { validate } from '../middleware/validate.js';
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', validate(createProductSchema), async (req, res) => {
   try {
-    const validatedData = createProductSchema.parse(req.body);
-
     const product = await prisma.product.create({
-      data: validatedData,
+      data: req.validatedData,
+      // ...userId,
     });
 
     res.status(201).json({
@@ -39,11 +39,25 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    let { page = 1, limit = 10 } = req.query;
+    let { page = 1, limit = 10, category, search } = req.query;
+
+    const allowedCategory = ['FOOD', 'DRINK', 'SNACK', 'DESSERT', 'OTHER'];
+    if (category && !allowedCategory.includes(category.toUpperCase())) {
+      return res.status(400).json({
+        message: 'Invalid category',
+      });
+    }
 
     const products = await prisma.product.findMany({
       where: {
         isDeleted: false,
+        ...(category && { category: category.toUpperCase() }),
+        ...(search && {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        }),
       },
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
