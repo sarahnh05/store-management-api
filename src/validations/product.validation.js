@@ -25,7 +25,7 @@ export const createProductSchema = z.object({
     ),
 
   description: z.string().optional(),
-  userId: z.string().min(1, 'userId is required'),
+  // userId: z.string().min(1, 'userId is required'),
 });
 
 export const updateProductSchema = z.object({
