@@ -105,6 +105,59 @@ router.get(
   },
 );
 
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    let { page = 1, limit = 10, category, search } = req.query;
+
+    const allowedCategory = ['FOOD', 'DRINK', 'SNACK', 'DESSERT', 'OTHER'];
+    if (category && !allowedCategory.includes(category.toUpperCase())) {
+      return res.status(400).json({
+        message: 'Invalid category',
+      });
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        userId,
+        isDeleted: false,
+        ...(category && { category: category.toUpperCase() }),
+        ...(search && {
+          name: {
+            contains: search,
+            mode: 'insensitive',
+          },
+        }),
+      },
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const total = await prisma.product.count({
+      where: {
+        userId,
+        isDeleted: false,
+      },
+    });
+
+    res.json({
+      message: 'Success',
+      total,
+      totalPages: Math.ceil(total / limit),
+      page: Number(page),
+      limit: Number(limit),
+      data: products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Internal server error',
+    });
+  }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;

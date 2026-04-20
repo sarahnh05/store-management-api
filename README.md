@@ -110,6 +110,7 @@ POST /auth/logout
 ### Products
 
 GET /products
+GET /products/me
 GET /products/:id
 POST /products
 PUT /products/:id
@@ -123,18 +124,32 @@ DELETE /products/:id
 
 ## Testing
 
-Tested manually using Postman.
+Tested manually using Postman
+
+### Register
+
+![Register](./assets/register.PNG)
+
+### Login
+
+![Login](./assets/login.PNG)
+
+### Create Product
+
+![Create](./assets/add-product.PNG)
+
+### My Products
+
+![My](./assets/get-all-products-user.PNG)
+
+### Forbidden Access
+
+[!Get](./assets/get-all.PNG)
 
 ## Notes
 
 - Soft delete is implemented using `isDeleted` flag
 - All product queries exclude deleted items
-
-Some features are still in progress:
-
-- Advanced validation (edge cases like whitespace input)
-- Role management improvements
-- Authorization refinement
 
 ## Author
 

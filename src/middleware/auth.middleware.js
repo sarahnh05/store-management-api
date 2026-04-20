@@ -31,8 +31,6 @@ export const authMiddleware = async (req, res, next) => {
       role: user.role,
     };
 
-    console.log(req.user.id);
-
     next();
   } catch (error) {
     return res.status(401).json({
