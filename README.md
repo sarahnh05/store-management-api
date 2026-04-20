@@ -73,6 +73,7 @@ PRODUCT {
 
 ## Project Structure
 
+```
 src/
 ├── controllers/
 ├── routes/
@@ -80,6 +81,7 @@ src/
 ├── validations/
 ├── utils/
 ├── prisma/
+```
 
 ## Installation
 
@@ -103,18 +105,18 @@ src/
 
 ### Auth
 
-POST /auth/register
-POST /auth/login
-POST /auth/logout
+- POST /auth/register
+- POST /auth/login
+- POST /auth/logout
 
 ### Products
 
-GET /products
-GET /products/me
-GET /products/:id
-POST /products
-PUT /products/:id
-DELETE /products/:id
+- GET /products
+- GET /products/me
+- GET /products/:id
+- POST /products
+- PUT /products/:id
+- DELETE /products/:id
 
 ## Query Features
 
@@ -144,7 +146,7 @@ Tested manually using Postman
 
 ### Forbidden Access
 
-[!Get](./assets/get-all.PNG)
+![Get](./assets/get-all.PNG)
 
 ## Notes
 
