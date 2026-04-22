@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import { connectDB, disconnectDB } from './config/db.js';
 
 //import routes
+import orderRoutes from './routes/orderRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 
@@ -15,6 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // API routes
+app.use('/orders', orderRoutes);
 app.use('/products', productRoutes);
 app.use('/auth', authRoutes);
 
