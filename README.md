@@ -1,25 +1,78 @@
 # store-management-api
 
-A RESTful API for managing products and users with authentication, role-based access control, validation, pagination, and soft delete. Built using Express, Prisma, and PostgreSQL.
+A backend API for managing products and handling simple transaction flows (cash-based), built with Node.js, Express, Prisma, and PostgreSQL.
 
 ## Features
-
+### Authentication & Authorization
 - User authentication (Register & Login with JWT)
-- Role-based access control (USER, ADMIN, SUPERADMIN)
-- Product Management (CRUD)
-- Filter by product category
-- Search product by name
-- Input validation using Zod
-- Pagination for product list
-- Soft delete
-- Prisma ORM with PostgreSQL
-- Error handling (including Prisma errors like duplicate email)
+- Role-based access (USER, ADMIN, SUPERADMIN)
+  
+### Product Management
+- Create, update, delete products
+- Ownership-based access control
+- Filter by category
+- Search (case-insensitive & partial)
+- Pagination
+- Soft delete 
+
+### Order Management (Transaction Flow)
+- Create empty order
+- Add items to order
+- Update item quantity
+- Remove items from order
+- Automatically calculate subtotal & total price
+- Prevent duplicate items (update instead of create)
+
+### Payment (Cash Only)
+- Designed for simple POS-like flow
+- Payment handled as part of transaction flow
+- Calculates total and change amount
+
+## Transaction Flow
+- Create empty order
+- Add product(s) to order
+- System will:
+  - Validate product & stock
+  - Store priceAtTime
+  - Calculate subTotal
+  - Update order total
+- Update or remove items if needed
+- Final order reflects total transaction value
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- Prisma ORM
+- PostgreSQL
+- Zod (validation)
+- JWT (authentication)
+
+## Project Structure
+
+```
+src/
+├── controllers/
+├── routes/
+├── middlewares/
+├── validations/
+├── utils/
+├── prisma/
+```
 
 ## ERD Diagram
 
 ```mermaid
 erDiagram
+
 USER ||--o{ PRODUCT : creates
+USER ||--o{ ORDER : places
+
+PRODUCT ||--o{ ORDER_ITEM : included_in
+ORDER ||--o{ ORDER_ITEM : contains
+
+ORDER ||--o{ PAYMENT : has
+
 USER {
   string id
   string email
@@ -42,7 +95,64 @@ PRODUCT {
   datetime createdAt
   datetime updatedAt
 }
+
+ ORDER {
+    string id
+    string userId
+    float total
+    enum status
+    datetime createdAt
+  }
+
+  ORDER_ITEM {
+    string id
+    string orderId
+    string productId
+    int quantity
+    float subTotal
+    float priceAtTime
+  }
+
+  PAYMENT {
+    string id
+    string orderId
+    enum paymentMethod
+    float amountPaid
+    float changeAmount
+    enum status
+    datetime paidAt
+  }
+
 ```
+
+## API Endpoints
+
+### Auth
+- POST /auth/register    -> Register new user
+- POST /auth/login       -> Login user
+- POST /auth/logout      -> Logout user
+
+### Products
+- GET /products          -> Get all products (Admin)
+- GET /products/me       -> Get user products
+- GET /products/:id      -> Get product detail
+- POST /products         -> Create product
+- PUT /products/:id      -> Update product
+- DELETE /products/:id   -> Delete product (soft delete)
+
+### Orders
+- POST /orders                          -> Create empty order
+- POST /orders/:orderId/items           -> Add item to order
+- PATCH /orders/:orderId/items/:itemId  -> Update item quantity
+- DELETE /orders/:orderId/items/:itemId -> Remove item
+- POST /orders/:orderId/checkout        -> Checkout Order
+- GET /orders/:id                       -> Get order detail
+
+## Query Features
+
+- Pagination: ?page=1&limit=10
+- Search: ?search=nasi
+- Category filter: ?category=FOOD
 
 ## Roles & Permissions
 
@@ -63,25 +173,6 @@ PRODUCT {
 - Full access to all resources
 - Manage user roles
 
-## Tech Stack
-
-- Node.js
-- Express.js
-- Prisma ORM
-- PostgreSQL
-- Zod (validation)
-
-## Project Structure
-
-```
-src/
-├── controllers/
-├── routes/
-├── middlewares/
-├── validations/
-├── utils/
-├── prisma/
-```
 
 ## Installation
 
@@ -101,28 +192,7 @@ src/
 5. Start server
    npm run dev
 
-## API Endpoints
 
-### Auth
-
-- POST /auth/register
-- POST /auth/login
-- POST /auth/logout
-
-### Products
-
-- GET /products
-- GET /products/me
-- GET /products/:id
-- POST /products
-- PUT /products/:id
-- DELETE /products/:id
-
-## Query Features
-
-- Pagination: ?page=1&limit=10
-- Search: ?search=keyboard
-- Category filter: ?category=FOOD
 
 ## Testing
 
@@ -149,9 +219,12 @@ Tested manually using Postman
 ![Get](./assets/get-all.PNG)
 
 ## Notes
-
+- This is a V1 implementation
+--Focused on core backend logic & transaction flow
+- Payment system is simplified (cash only)
 - Soft delete is implemented using `isDeleted` flag
 - All product queries exclude deleted items
+- Edge case handling is partially implemented and will be improved
 
 ## Author
 
