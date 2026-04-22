@@ -1,4 +1,4 @@
-# store-management-api
+# Store Management & Transaction API
 
 A backend API for managing products and handling simple transaction flows (cash-based), built with Node.js, Express, Prisma, and PostgreSQL.
 
