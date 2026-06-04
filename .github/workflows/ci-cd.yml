@@ -16,10 +16,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
       - name: Install depedencies
-        run: npm Install
+        run: npm install
 
       - name: Run tests
         run: npm test
