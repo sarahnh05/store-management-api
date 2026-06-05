@@ -1,21 +1,25 @@
 # Store Management & Transaction API
 
-A backend API for managing products and handling simple transaction flows (cash-based), built with Node.js, Express, Prisma, and PostgreSQL.
+A backend API for managing products and handling simple transaction flows (cash-based), built with Node.js, Express, Prisma, and PostgreSQL. Implemented CI/CD pipeline using Github Actions for automated testing and deployment.
 
 ## Features
+
 ### Authentication & Authorization
+
 - User authentication (Register & Login with JWT)
 - Role-based access (USER, ADMIN, SUPERADMIN)
-  
+
 ### Product Management
+
 - Create, update, delete products
 - Ownership-based access control
 - Filter by category
 - Search (case-insensitive & partial)
 - Pagination
-- Soft delete 
+- Soft delete
 
 ### Order Management (Transaction Flow)
+
 - Create empty order
 - Add items to order
 - Update item quantity
@@ -24,11 +28,13 @@ A backend API for managing products and handling simple transaction flows (cash-
 - Prevent duplicate items (update instead of create)
 
 ### Payment (Cash Only)
+
 - Designed for simple POS-like flow
 - Payment handled as part of transaction flow
 - Calculates total and change amount
 
 ## Transaction Flow
+
 - Create empty order
 - Add product(s) to order
 - System will:
@@ -128,25 +134,28 @@ PRODUCT {
 ## API Endpoints
 
 ### Auth
-- POST /auth/register    -> Register new user
-- POST /auth/login       -> Login user
-- POST /auth/logout      -> Logout user
+
+- POST /auth/register -> Register new user
+- POST /auth/login -> Login user
+- POST /auth/logout -> Logout user
 
 ### Products
-- GET /products          -> Get all products (Admin)
-- GET /products/me       -> Get user products
-- GET /products/:id      -> Get product detail
-- POST /products         -> Create product
-- PUT /products/:id      -> Update product
-- DELETE /products/:id   -> Delete product (soft delete)
+
+- GET /products -> Get all products (Admin)
+- GET /products/me -> Get user products
+- GET /products/:id -> Get product detail
+- POST /products -> Create product
+- PUT /products/:id -> Update product
+- DELETE /products/:id -> Delete product (soft delete)
 
 ### Orders
-- POST /orders                          -> Create empty order
-- POST /orders/:orderId/items           -> Add item to order
-- PATCH /orders/:orderId/items/:itemId  -> Update item quantity
+
+- POST /orders -> Create empty order
+- POST /orders/:orderId/items -> Add item to order
+- PATCH /orders/:orderId/items/:itemId -> Update item quantity
 - DELETE /orders/:orderId/items/:itemId -> Remove item
-- POST /orders/:orderId/checkout        -> Checkout Order
-- GET /orders/:id                       -> Get order detail
+- POST /orders/:orderId/checkout -> Checkout Order
+- GET /orders/:id -> Get order detail
 
 ## Query Features
 
@@ -173,7 +182,6 @@ PRODUCT {
 - Full access to all resources
 - Manage user roles
 
-
 ## Installation
 
 1. Clone repository
@@ -191,8 +199,6 @@ PRODUCT {
 
 5. Start server
    npm run dev
-
-
 
 ## Testing
 
@@ -219,8 +225,9 @@ Tested manually using Postman
 ![Get](./assets/get-all.PNG)
 
 ## Notes
+
 - This is a V1 implementation
---Focused on core backend logic & transaction flow
+  --Focused on core backend logic & transaction flow
 - Payment system is simplified (cash only)
 - Soft delete is implemented using `isDeleted` flag
 - All product queries exclude deleted items
